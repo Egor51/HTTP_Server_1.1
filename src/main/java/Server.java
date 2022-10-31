@@ -7,18 +7,29 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    static ExecutorService execute = Executors.newFixedThreadPool(64);
 
-    protected Server() {
+    int port;
+    int pool;
 
-        List<String> validPaths = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/classic.html", "/events.html", "/events.js");
+    private final List<String> validPaths = List.of("/index.html", "/spring.svg", "/spring.png", "/resources.html", "/styles.css", "/app.js", "/links.html", "/forms.html", "/classic.html", "/events.html", "/events.js");
 
-        try (final var serverSocket = new ServerSocket(9999)) {
+
+
+    protected Server(int port, int pool) {
+        this.port = port;
+        this.pool = pool;
+
+
+        ExecutorService execute = Executors.newFixedThreadPool(pool);
+
+
+        try (final var serverSocket = new ServerSocket(port)) {
             while (!serverSocket.isClosed()) {
                 var socket = serverSocket.accept();
                 execute.execute(new Runnable() {
@@ -30,7 +41,7 @@ public class Server {
             }
             execute.shutdown();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -94,7 +105,8 @@ public class Server {
             Files.copy(filePath, out);
             out.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            ;
         }
     }
 }
